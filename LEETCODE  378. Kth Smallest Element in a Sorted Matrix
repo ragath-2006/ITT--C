@@ -1,0 +1,24 @@
+#include <stdio.h>   
+#include <stdlib.h>  
+int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k) {
+    int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+   int row=matrixSize;
+   int col=matrixColSize[0];
+   int totalsize=row*col;
+   int flatarray[totalsize];
+   int index=0;
+   int i=0,j=0;
+   for(i=0;i<row;i++){
+    for(j=0;j<col;j++){
+        flatarray[index]=matrix[i][j];
+        index++;
+    }
+   }
+  
+qsort(flatarray,totalsize,sizeof(int),compare);
+
+    return flatarray[k-1];
+    
+}
