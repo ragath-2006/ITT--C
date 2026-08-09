@@ -1,0 +1,30 @@
+class Solution(object):
+    def findLUSlength(self, strs):
+        
+        strs.sort(key=len, reverse=True)
+        
+        for i in range(len(strs)):
+            current_word = strs[i]
+           
+            other_words = strs[:i] + strs[i+1:]
+            
+            is_uncommon = True
+            
+
+            for word in other_words:
+                p_a = 0
+                p_b = 0
+                while p_a < len(current_word) and p_b < len(word):
+                    if current_word[p_a] == word[p_b]:
+                        p_a += 1
+                    p_b += 1
+                
+                if p_a == len(current_word):
+                    is_uncommon = False
+                    break 
+            
+           
+            if is_uncommon:
+                return len(current_word)
+
+        return -1
