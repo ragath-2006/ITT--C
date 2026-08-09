@@ -1,0 +1,101 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct {
+    int* data;
+    int size;
+    int capacity;
+    bool isMinHeap;
+} Heap;
+
+Heap* createHeap(int capacity, bool isMinHeap) {
+    Heap* h = (Heap*)malloc(sizeof(Heap));
+    h->data = (int*)malloc(capacity * sizeof(int));
+    h->size = 0;
+    h->capacity = capacity;
+    h->isMinHeap = isMinHeap;
+    return h;
+}
+
+bool compare(int a, int b, bool isMinHeap) {
+    return isMinHeap ? (a < b) : (a > b);
+}
+
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void push(Heap* h, int val) {
+    h->data[h->size] = val;
+    int i = h->size;
+    h->size++;
+    while (i > 0) {
+        int p = (i - 1) / 2;
+        if (compare(h->data[i], h->data[p], h->isMinHeap)) {
+            swap(&h->data[i], &h->data[p]);
+            i = p;
+        } else {
+            break;
+        }
+    }
+}
+
+int pop(Heap* h) {
+    int res = h->data[0];
+    h->size--;
+    h->data[0] = h->data[h->size];
+    int i = 0;
+    while (2 * i + 1 < h->size) {
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+        int target = left;
+        if (right < h->size && compare(h->data[right], h->data[left], h->isMinHeap)) {
+            target = right;
+        }
+        if (compare(h->data[target], h->data[i], h->isMinHeap)) {
+            swap(&h->data[i], &h->data[target]);
+            i = target;
+        } else {
+            break;
+        }
+    }
+    return res;
+}
+
+typedef struct {
+    Heap* small; 
+    Heap* large; 
+} MedianFinder;
+
+MedianFinder* medianFinderCreate() {
+    MedianFinder* obj = (MedianFinder*)malloc(sizeof(MedianFinder));
+    obj->small = createHeap(50005, false); 
+    obj->large = createHeap(50005, true);
+    return obj;
+}
+
+void medianFinderAddNum(MedianFinder* obj, int num) {
+    push(obj->small, num);
+    push(obj->large, pop(obj->small));
+    
+    if (obj->large->size > obj->small->size) {
+        push(obj->small, pop(obj->large));
+    }
+}
+
+double medianFinderFindMedian(MedianFinder* obj) {
+    if (obj->small->size > obj->large->size) {
+        return (double)(obj->small->data[0]);
+    }
+    return ((double)obj->small->data[0] + (double)obj->large->data[0]) / 2.0;
+}
+
+void medianFinderFree(MedianFinder* obj) {
+    free(obj->small->data);
+    free(obj->small);
+    free(obj->large->data);
+    free(obj->large);
+    free(obj);
+}
